@@ -30,6 +30,6 @@ handlers.paypalNotify = function(args, context) {
     cmd: '_notify-sync',
     tx: paypalTransactionId,
     at: paypalIdentityToken,
-  })), 'application/x-www-form-urlencoded');
+  }), 'application/x-www-form-urlencoded');
   return {paypalResponse: response}
 };
