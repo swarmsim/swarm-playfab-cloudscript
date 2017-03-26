@@ -44,6 +44,8 @@ handlers.paypalNotify = function(args, context) {
   var headers = {Host: host};
 
   log.debug(body);
-  var response = http.request(url, "post", body, 'application/x-www-form-urlencoded', headers);
-  return {response: response, body: parseResponse(response)};
+  var restext = http.request(url, "post", body, 'application/x-www-form-urlencoded', headers);
+  var resjson = parseResponse(restext);
+  // TODO: add the purchased crystals to currentPlayerId's acount
+  return {response: restext, body: resjson};
 };
