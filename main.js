@@ -33,7 +33,6 @@ handlers.paypalNotify = function(args, context) {
   var headers = {Host: host};
 
   log.debug(body);
-  //var response = http.request(url, "post", body, 'application/x-www-form-urlencoded');
-  var response = http.request(url, "post", body, headers);
+  var response = http.request(url, "post", body, 'application/x-www-form-urlencoded', headers);
   return {paypalResponse: response}
 };
