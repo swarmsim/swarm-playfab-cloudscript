@@ -10,9 +10,15 @@ https://api.playfab.com/documentation/Server/method/GetTitleInternalData
 
 settings
 ========
-dev: https://developer.playfab.com/en-us/F810/servers/cloudscript , https://developer.playfab.com/en-us/F810/content/title-data
+dev:
+* https://developer.playfab.com/en-us/F810/servers/cloudscript 
+* https://developer.playfab.com/en-us/F810/content/title-data
+* https://www.sandbox.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-website-payments
 
-prod: https://developer.playfab.com/en-us/7487/servers/cloudscript , https://developer.playfab.com/en-us/7487/content/title-data
+prod:
+* https://developer.playfab.com/en-us/7487/servers/cloudscript 
+* https://developer.playfab.com/en-us/7487/content/title-data
+* https://www.paypal.com/cgi-bin/customerprofileweb?cmd=_profile-website-payments
 
 from the swarmsim JS console
 ============================
