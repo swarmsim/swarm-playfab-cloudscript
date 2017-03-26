@@ -26,7 +26,7 @@ handlers.paypalNotify = function(args, context) {
   var paypalIdentityToken = env.Data.PAYPAL_IDENTITY_TOKEN;
   var paypalTransactionId = args.tx;
   var body = formUrlencoded({
-    cmd: '_notify-sync',
+    cmd: '_notify-synch',
     tx: paypalTransactionId,
     at: paypalIdentityToken,
   });
