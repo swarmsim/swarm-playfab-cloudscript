@@ -12,10 +12,10 @@ handlers.paypalNotify = function(args, context) {
   var url = host + '/cgi-bin/webscr'
   var paypalIdentityToken = env.Data.PAYPAL_IDENTITY_TOKEN;
   var paypalTransactionId = args.tx;
-  var response = http.request(url, {
+  var response = http.request(url, "post", JSON.stringify({
     cmd: '_notify-sync',
     tx: paypalTransactionId,
     at: paypalIdentityToken,
-  });
+  }), 'application/json');
   return {paypalResponse: response}
 };
