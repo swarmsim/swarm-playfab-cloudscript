@@ -17,6 +17,14 @@ function formUrlencoded(obj) {
   }
   return ret.join('&');
 }
+function parseResponse(text) {
+  var ret = {};
+  for (var line in text.split('\n')) {
+    line = line.split('=')
+    ret[decodeURIComponent(line[0])] = decodeURIComponent(line[1]);
+  }
+  return ret
+}
 
 // Paypal PDT payments.
 handlers.paypalNotify = function(args, context) {
@@ -34,5 +42,5 @@ handlers.paypalNotify = function(args, context) {
 
   log.debug(body);
   var response = http.request(url, "post", body, 'application/x-www-form-urlencoded', headers);
-  return {paypalResponse: response}
+  return {response: response, body: parseResponse(response)};
 };
