@@ -19,9 +19,12 @@ function formUrlencoded(obj) {
 }
 function parseResponse(text) {
   var ret = {};
-  for (var line in text.split('\n')) {
-    line = line.split('=')
-    ret[decodeURIComponent(line[0])] = decodeURIComponent(line[1]);
+  var lines = text.split('\n');
+  for (var i=0; i < lines.length; i++) {
+    var line = lines[i].split('=');
+    var key = decodeURIComponent(line[0]);
+    var val = decodeURIComponent(line[1]);
+    ret[key] = val;
   }
   return ret
 }
