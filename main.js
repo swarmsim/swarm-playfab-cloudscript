@@ -22,7 +22,7 @@ function formUrlencoded(obj) {
 handlers.paypalNotify = function(args, context) {
   var env = server.GetTitleInternalData({});
   var host = env.Data.PAYPAL_HOSTNAME;
-  var url = host + '/cgi-bin/webscr'
+  var url = 'https://' + host + '/cgi-bin/webscr'
   var paypalIdentityToken = env.Data.PAYPAL_IDENTITY_TOKEN;
   var paypalTransactionId = args.tx;
   var body = formUrlencoded({
@@ -30,9 +30,10 @@ handlers.paypalNotify = function(args, context) {
     tx: paypalTransactionId,
     at: paypalIdentityToken,
   });
+  var headers = {Host: host};
 
   log.debug(body);
   //var response = http.request(url, "post", body, 'application/x-www-form-urlencoded');
-  var response = http.request(url, "post", body);
+  var response = http.request(url, "post", body, headers);
   return {paypalResponse: response}
 };
