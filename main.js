@@ -25,11 +25,14 @@ handlers.paypalNotify = function(args, context) {
   var url = host + '/cgi-bin/webscr'
   var paypalIdentityToken = env.Data.PAYPAL_IDENTITY_TOKEN;
   var paypalTransactionId = args.tx;
-
-  var response = http.request(url, "post", formUrlencoded({
+  var body = formUrlencoded({
     cmd: '_notify-sync',
     tx: paypalTransactionId,
     at: paypalIdentityToken,
-  }), 'application/x-www-form-urlencoded');
+  });
+
+  log.debug(body);
+  //var response = http.request(url, "post", body, 'application/x-www-form-urlencoded');
+  var response = http.request(url, "post", body);
   return {paypalResponse: response}
 };
