@@ -37,10 +37,10 @@ handlers.paypalNotify = function(args, context) {
   var itemId = txnHistory[paypalTransactionId];
   if (!!itemId) {
     // this transaction already succeeded
-    log.debug("already applied this transaction", {tx: paypalTransactionId, currentPlayerId, itemId: itemId});
+    log.debug("already applied this transaction ", +JSON.stringify({tx: paypalTransactionId, currentPlayerId, itemId: itemId}));
   }
   else {
-    log.debug("haven't yet applied this transaction", {tx: paypalTransactionId, currentPlayerId});
+    log.debug("haven't yet applied this transaction "+JSON.stringify({tx: paypalTransactionId, currentPlayerId}));
     // ask paypal if the transaction succeeded
     var env = server.GetTitleInternalData({});
     var host = env.Data.PAYPAL_HOSTNAME;
@@ -56,10 +56,10 @@ handlers.paypalNotify = function(args, context) {
     log.debug({reqbody: body});
     var restext = http.request(url, "post", body, 'application/x-www-form-urlencoded', headers);
     var res = parseResponse(restext);
-    if (json.hasOwnProperty('SUCCESS')) {
+    if (res.hasOwnProperty('SUCCESS')) {
       // non-duplicate success. add the item to the player's inventory
       var itemId = res.item_number
-      log.debug("successful non-duplicate transaction. adding item to inventory", {itemId: itemId});
+      log.debug("successful non-duplicate transaction. adding item to inventory "+JSON.stringify({itemId: itemId}));
       var grant = server.GrantItemsToUser({PlayFabId: currentPlayerId, Annotation: "paypal tx="+paypalTransactionId, ItemIds: [itemId]});
       if (grant.ItemGrantResults) {
         txnHistory[paypalTransactionId] = grant.ItemGrantResults[0].ItemInstanceId;
@@ -67,7 +67,7 @@ handlers.paypalNotify = function(args, context) {
         // fall through to the success case at the end
       }
       else {
-        log.debug("playfab item grant failed", grant);
+        log.debug("playfab item grant failed "+JSON.stringify(grant));
         return {
           state: 'error',
           playfabGrantItemResponse: grant
