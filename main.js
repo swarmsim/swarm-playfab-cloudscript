@@ -33,8 +33,7 @@ function parseResponse(text) {
 handlers.paypalNotify = function(args, context) {
   var paypalTransactionId = args.tx;
   var user = server.GetUserInternalData({PlayFabId: currentPlayerId, Keys: ['PaypalTxns']});
-  log.debug(user.Data);
-  var txnHistory = user.Data.PaypalTxns ? JSON.parse(user.Data.PaypalTxns) : {};
+  var txnHistory = user.Data.PaypalTxns ? JSON.parse(user.Data.PaypalTxns.Value) : {};
   var itemInstanceId = txnHistory[paypalTransactionId];
   if (!!itemInstanceId) {
     // this transaction already succeeded
