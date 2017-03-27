@@ -37,7 +37,7 @@ handlers.paypalNotify = function(args, context) {
   var itemInstanceId = txnHistory[paypalTransactionId];
   if (!!itemInstanceId) {
     // this transaction already succeeded
-    log.debug("already applied this transaction ", +JSON.stringify({tx: paypalTransactionId, currentPlayerId, itemId: itemId}));
+    log.debug("already applied this transaction ", +JSON.stringify({tx: paypalTransactionId, currentPlayerId: currentPlayerId, itemInstanceId: itemInstanceId}));
   }
   else {
     log.debug("haven't yet applied this transaction "+JSON.stringify({tx: paypalTransactionId, currentPlayerId: currentPlayerId, txnHistory: txnHistory}));
