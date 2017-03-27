@@ -33,11 +33,11 @@ function parseResponse(text) {
 handlers.paypalNotify = function(args, context) {
   var paypalTransactionId = args.tx;
   var user = server.GetUserInternalData({PlayFabId: currentPlayerId, Keys: ['PaypalTxns']});
-  var txnHistory = (user.Data.PaypalTxns || {})[paypalTransactionId];
-  if (txnHistory[paypalTransactionId]) {
+  var txnHistory = (user.Data.PaypalTxns || {});
+  var itemId = txnHistory[paypalTransactionId];
+  if (!!itemId) {
     // this transaction already succeeded
-    itemId = txnHistory[paypalTransactionId];
-    log.debug("already applied this transaction", {tx: paypalTransactionId, currentPlayerId});
+    log.debug("already applied this transaction", {tx: paypalTransactionId, currentPlayerId, itemId: itemId});
   }
   else {
     log.debug("haven't yet applied this transaction", {tx: paypalTransactionId, currentPlayerId});
