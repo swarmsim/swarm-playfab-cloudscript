@@ -64,6 +64,7 @@ handlers.paypalNotify = function(args, context) {
       var grant = server.GrantItemsToUser({PlayFabId: currentPlayerId, Annotation: "paypal tx="+paypalTransactionId, ItemIds: [itemId]});
       if (grant.ItemGrantResults) {
         itemInstanceId = txnHistory[paypalTransactionId] = grant.ItemGrantResults[0].ItemInstanceId;
+        log.debug("update txnHistory: "+JSON.stringify(txnHistory));
         var update = server.UpdateUserInternalData({PlayFabId: currentPlayerId, Data: {PaypalTxns: txnHistory}});
         log.debug(update);
         // fall through to the success case at the end
