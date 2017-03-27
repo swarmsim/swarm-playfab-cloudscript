@@ -34,8 +34,8 @@ handlers.paypalNotify = function(args, context) {
   var paypalTransactionId = args.tx;
   var user = server.GetUserInternalData({PlayFabId: currentPlayerId, Keys: ['PaypalTxns']});
   var txnHistory = (user.Data.PaypalTxns || {});
-  var itemId = txnHistory[paypalTransactionId];
-  if (!!itemId) {
+  var itemInstanceId = txnHistory[paypalTransactionId];
+  if (!!itemInstanceId) {
     // this transaction already succeeded
     log.debug("already applied this transaction ", +JSON.stringify({tx: paypalTransactionId, currentPlayerId, itemId: itemId}));
   }
@@ -60,10 +60,12 @@ handlers.paypalNotify = function(args, context) {
       // non-duplicate success. add the item to the player's inventory
       var itemId = res.item_number
       log.debug("successful non-duplicate transaction. adding item to inventory "+JSON.stringify({itemId: itemId}));
+      // careful here - if the grant succeeds and the update doesn't, it's re-applied on every reload - infinite crystals
       var grant = server.GrantItemsToUser({PlayFabId: currentPlayerId, Annotation: "paypal tx="+paypalTransactionId, ItemIds: [itemId]});
       if (grant.ItemGrantResults) {
-        txnHistory[paypalTransactionId] = grant.ItemGrantResults[0].ItemInstanceId;
-        server.UpdateUserInternalData({PlayFabId: currentPlayerId, Data: {PaypalTxns: txnHistory}});
+        itemInstanceId = txnHistory[paypalTransactionId] = grant.ItemGrantResults[0].ItemInstanceId;
+        var update = server.UpdateUserInternalData({PlayFabId: currentPlayerId, Data: {PaypalTxns: txnHistory}});
+        log.debug(update);
         // fall through to the success case at the end
       }
       else {
@@ -87,6 +89,6 @@ handlers.paypalNotify = function(args, context) {
     state: 'success',
     tx: paypalTransactionId,
     playfabId: currentPlayerId,
-    itemId: itemId
+    itemInstanceId: itemInstanceId
   }
 };
