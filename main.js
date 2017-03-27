@@ -31,21 +31,62 @@ function parseResponse(text) {
 
 // Paypal PDT payments.
 handlers.paypalNotify = function(args, context) {
-  var env = server.GetTitleInternalData({});
-  var host = env.Data.PAYPAL_HOSTNAME;
-  var url = 'https://' + host + '/cgi-bin/webscr'
-  var paypalIdentityToken = env.Data.PAYPAL_IDENTITY_TOKEN;
   var paypalTransactionId = args.tx;
-  var body = formUrlencoded({
-    cmd: '_notify-synch',
-    tx: paypalTransactionId,
-    at: paypalIdentityToken,
-  });
-  var headers = {Host: host};
+  var user = server.GetUserInternalData({PlayFabId: currentPlayerId, Keys: ['PaypalTxns']});
+  var txnHistory = user.Data.PaypalTxns[paypalTransactionId];
+  if (txnHistory[paypalTransactionId]) {
+    // this transaction already succeeded
+    itemId = txnHistory[paypalTransactionId];
+    log.debug("already applied this transaction", {tx: paypalTransactionId, currentPlayerId});
+  }
+  else {
+    log.debug("haven't yet applied this transaction", {tx: paypalTransactionId, currentPlayerId});
+    // ask paypal if the transaction succeeded
+    var env = server.GetTitleInternalData({});
+    var host = env.Data.PAYPAL_HOSTNAME;
+    var url = 'https://' + host + '/cgi-bin/webscr'
+    var paypalIdentityToken = env.Data.PAYPAL_IDENTITY_TOKEN;
+    var body = formUrlencoded({
+      cmd: '_notify-synch',
+      tx: paypalTransactionId,
+      at: paypalIdentityToken,
+    });
+    var headers = {Host: host};
 
-  log.debug(body);
-  var restext = http.request(url, "post", body, 'application/x-www-form-urlencoded', headers);
-  var resjson = parseResponse(restext);
-  // TODO: add the purchased crystals to currentPlayerId's acount
-  return {response: restext, body: resjson};
+    log.debug({reqbody: body});
+    var restext = http.request(url, "post", body, 'application/x-www-form-urlencoded', headers);
+    var res = parseResponse(restext);
+    if (json.hasOwnProperty('SUCCESS')) {
+      // non-duplicate success. add the item to the player's inventory
+      var itemId = res.item_number
+      log.debug("successful non-duplicate transaction. adding item to inventory", {itemId: itemId});
+      var grant = server.GrantItemsToUser({PlayFabId: currentPlayerId, Annotation: "paypal tx="+paypalTransactionId, ItemIds: [itemId]});
+      if (grant.data.ItemGrantResults) {
+        txnHistory[paypalTransactionId] = grant.data.ItemGrantResults[0].ItemInstanceId;
+        server.UpdateUserInternalData({PlayFabId: currentPlayerId, Data: {PaypalTxns: txnHistory}});
+        // fall through to the success case at the end
+      }
+      else {
+        log.debug("playfab item grant failed", grant);
+        return {
+          state: 'error',
+          playfabGrantItemResponse: grant
+        }
+      }
+    }
+    else {
+      // paypal failed for some reason
+      return {
+        state: 'error',
+        paypalResponse: res
+      }
+    }
+  }
+  // either we granted the item successfully this time, or this txn already succeeded
+  return {
+    state: 'success',
+    tx: paypalTransactionId,
+    playfabId: currentPlayerId,
+    itemId: itemId
+  }
 };
