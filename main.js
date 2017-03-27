@@ -33,7 +33,7 @@ function parseResponse(text) {
 handlers.paypalNotify = function(args, context) {
   var paypalTransactionId = args.tx;
   var user = server.GetUserInternalData({PlayFabId: currentPlayerId, Keys: ['PaypalTxns']});
-  var txnHistory = (user.Data.PaypalTxns || {});
+  var txnHistory = user.Data.PaypalTxns ? JSON.parse(user.Data.PaypalTxns) : {};
   var itemInstanceId = txnHistory[paypalTransactionId];
   if (!!itemInstanceId) {
     // this transaction already succeeded
@@ -65,7 +65,7 @@ handlers.paypalNotify = function(args, context) {
       if (grant.ItemGrantResults) {
         itemInstanceId = txnHistory[paypalTransactionId] = grant.ItemGrantResults[0].ItemInstanceId;
         log.debug("update txnHistory: "+JSON.stringify(txnHistory));
-        var update = server.UpdateUserInternalData({PlayFabId: currentPlayerId, Data: {PaypalTxns: txnHistory}});
+        var update = server.UpdateUserInternalData({PlayFabId: currentPlayerId, Data: {PaypalTxns: JSON.stringify(txnHistory)}});
         log.debug(update);
         // fall through to the success case at the end
       }
