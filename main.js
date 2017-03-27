@@ -40,7 +40,7 @@ handlers.paypalNotify = function(args, context) {
     log.debug("already applied this transaction ", +JSON.stringify({tx: paypalTransactionId, currentPlayerId, itemId: itemId}));
   }
   else {
-    log.debug("haven't yet applied this transaction "+JSON.stringify({tx: paypalTransactionId, currentPlayerId}));
+    log.debug("haven't yet applied this transaction "+JSON.stringify({tx: paypalTransactionId, currentPlayerId: currentPlayerId, txnHistory: txnHistory}));
     // ask paypal if the transaction succeeded
     var env = server.GetTitleInternalData({});
     var host = env.Data.PAYPAL_HOSTNAME;
