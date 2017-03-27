@@ -33,7 +33,7 @@ function parseResponse(text) {
 handlers.paypalNotify = function(args, context) {
   var paypalTransactionId = args.tx;
   var user = server.GetUserInternalData({PlayFabId: currentPlayerId, Keys: ['PaypalTxns']});
-  var txnHistory = user.Data.PaypalTxns[paypalTransactionId];
+  var txnHistory = (user.Data.PaypalTxns || {})[paypalTransactionId];
   if (txnHistory[paypalTransactionId]) {
     // this transaction already succeeded
     itemId = txnHistory[paypalTransactionId];
@@ -61,8 +61,8 @@ handlers.paypalNotify = function(args, context) {
       var itemId = res.item_number
       log.debug("successful non-duplicate transaction. adding item to inventory", {itemId: itemId});
       var grant = server.GrantItemsToUser({PlayFabId: currentPlayerId, Annotation: "paypal tx="+paypalTransactionId, ItemIds: [itemId]});
-      if (grant.data.ItemGrantResults) {
-        txnHistory[paypalTransactionId] = grant.data.ItemGrantResults[0].ItemInstanceId;
+      if (grant.ItemGrantResults) {
+        txnHistory[paypalTransactionId] = grant.ItemGrantResults[0].ItemInstanceId;
         server.UpdateUserInternalData({PlayFabId: currentPlayerId, Data: {PaypalTxns: txnHistory}});
         // fall through to the success case at the end
       }
