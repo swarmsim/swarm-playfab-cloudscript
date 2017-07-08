@@ -58,7 +58,8 @@ handlers.paypalNotify = function(args, context) {
     var res = parseResponse(restext);
     if (res.hasOwnProperty('SUCCESS')) {
       // non-duplicate success. add the item to the player's inventory
-      var itemId = res.item_number
+      // Apparently, it's possible to submit an order with a list of a single item somehow, so check for res.item_number1
+      var itemId = res.item_number || res.item_number1
       log.debug("successful non-duplicate transaction. adding item to inventory "+JSON.stringify({itemId: itemId}));
       // careful here - if the grant succeeds and the update doesn't, it's re-applied on every reload - infinite crystals
       var grant = server.GrantItemsToUser({PlayFabId: currentPlayerId, Annotation: "paypal tx="+paypalTransactionId, ItemIds: [itemId]});
